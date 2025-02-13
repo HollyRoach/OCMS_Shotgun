@@ -48,7 +48,8 @@ def connect():
 ###############################################################################
 @follows(mkdir('01_input_pooled.dir'))
 @collate(FASTQ1s,
-         regex(PARAMS['preprocess']['pool_input_regex']),  # Use regex from YAML
+         regex(DATADIR + "/" + PARAMS['preprocess']['pool_input_regex']),  # Use regex from YAML
+         # update so that output regex is used
          r"01_input_pooled.dir/" + PARAMS['preprocess']['pool_output_regex'])  # Output pattern from YAML
 def poolSamples(infiles, out_fastq1):
     '''Pool samples based on the provided regular expression and handle paired reads.'''

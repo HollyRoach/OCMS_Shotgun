@@ -61,3 +61,4 @@ class humann3(object):
             statement = statement + ' && rm -f %(outpath)s/%(prefix)s_humann_temp.tar.gz' % locals()
         return statement
     
+q
