@@ -17,16 +17,16 @@ from cgatcore import experiment as E
 
 import ocmsshotgun.modules.Utility as utility            
 
-def calculate_memory(fastq, mem, scale=1.5):
+def calculate_memory(fastq, mem, scale=1.7):
     '''Receives as input a fastq and a string. If string ==
     scalable, then calculate memory based on number of reads
     in fastq. Returns memory requirement in Gb
     '''
     if mem.lower() == 'scalable':
         n = 0
-        for i in fq.iterate(iotools.open_file(fastq)):
+        for i in fq.iterate(IOTools.open_file(fastq)):
             n += 1
-        n = n/1e6*scale
+        n = n/1e6*scale + 1
         mem = str(math.ceil(n)) + 'G'
 
     else:
