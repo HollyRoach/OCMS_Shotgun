@@ -27,6 +27,10 @@ humann3:
     # location of uniref2ko mapping file
     uniref_to_ko: /gpfs3/well/kir-ocms/shared/tmp/map_ko_uniref90.txt.gz
 
+    # humann_join_tables job options 
+    join_tables_memory: 60G
+    join_tables_threads: 1
+
     # post processing (i.e. normalizing rpm to cpm) job options
     postprocess_memory: 20G
     postprocess_threads: 8
