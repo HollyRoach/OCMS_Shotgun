@@ -126,7 +126,7 @@ def runReadProcessing(infile, outfile):
         P.run(statement)
 
     else:
-        os.symlink(infile, outfile)
+        os.symlink(os.path.abspath(infile), outfile)
 
     
 ###############################################################################
