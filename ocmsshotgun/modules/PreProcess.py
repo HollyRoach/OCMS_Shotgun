@@ -10,6 +10,7 @@ import pandas as pd
 import errno
 import json
 from glob import glob
+from pathlib import Path
 import cgat.Fastq as fq
 from cgatcore import pipeline as P
 from cgatcore import iotools as IOTools
@@ -104,10 +105,22 @@ def calc_mem_trimmomatic(fastq, mem, scale=1.7):
     in fastq. Returns memory requirement in Gb
     '''
     if mem.lower() == 'scalable':
-        n = 0
-        for i in fq.iterate(IOTools.open_file(fastq)):
-            n += 1
-        n = n/1e6*scale + 1
+
+        fastq = "/gpfs3/well/todd/projects/Microbiome/Azenta_WGM/Pipelines/04.1_preprocess/input.dir/FD28362162.fastq.1.gz"
+        # extract sample id from fastq file path
+        sample_id = re.search(r"input.dir\/(.+)\.fastq\.1\.gz", fastq).group(1)
+
+        # create filepath for location of file containing number of reads within fastq file
+        old_path = f"input.dir/{sample_id}.fastq.1.gz"
+        new_path = f"read_count_summary.dir/{sample_id}_input.nreads"
+        input_reads = re.sub(old_path, new_path, fastq)
+
+        # find number of reads within input fastq file
+        input_reads = Path(input_reads).read_text()
+        input_reads = int(re.sub(r'\n', '', input_reads))
+
+        # calculate required memory
+        n = input_reads/1e6*scale + 1
         mem = str(math.ceil(n)) + 'G'
 
     else:
