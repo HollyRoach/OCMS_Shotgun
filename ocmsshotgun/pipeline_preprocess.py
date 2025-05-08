@@ -81,7 +81,7 @@ def removeDuplicates(fastq1, outfile):
     '''Filter exact duplicates, if specified in config file'''
     statement = pp.cdhit(fastq1, outfile, **PARAMS).buildStatement()
 
-    job_memory = pp.calculate_memory(fastq1, PARAMS['cdhit_job_memory'])
+    job_memory = pp.calc_mem_cd_hit(fastq1, PARAMS['cdhit_job_memory'])
     P.run(statement,
           job_threads=PARAMS['cdhit_job_threads'], 
           job_memory=job_memory,
@@ -102,6 +102,8 @@ def removeAdapters(fastq1, outfile1):
     '''Remove adapters using Trimmomatic'''
 
     statement = pp.trimmomatic(fastq1, outfile1, **PARAMS).buildStatement()
+
+    job_memory = pp.calc_mem_trimmomatic(fastq1, PARAMS['trimmomatic_job_memory'])
 
     P.run(statement,
           job_threads = PARAMS['trimmomatic_job_threads'],

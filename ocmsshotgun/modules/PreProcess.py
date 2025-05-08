@@ -17,7 +17,7 @@ from cgatcore import experiment as E
 
 import ocmsshotgun.modules.Utility as utility            
 
-def calculate_memory(fastq, mem, scale=1.7):
+def calc_mem_cd_hit(fastq, mem, scale=1.7):
     '''Receives as input a fastq and a string. If string ==
     scalable, then calculate memory based on number of reads
     in fastq. Returns memory requirement in Gb
@@ -33,7 +33,6 @@ def calculate_memory(fastq, mem, scale=1.7):
         assert mem.endswith('G'), 'Expected memory to be in G'
         
     return mem
-
 
 
 class cdhit(utility.matchReference):
@@ -98,7 +97,24 @@ class cdhit(utility.matchReference):
                 utility.symlnk(fastq1, outfile)     
         
         return statement
+
+def calc_mem_trimmomatic(fastq, mem, scale=1.7):
+    '''Receives as input a fastq and a string. If string ==
+    scalable, then calculate memory based on number of reads
+    in fastq. Returns memory requirement in Gb
+    '''
+    if mem.lower() == 'scalable':
+        n = 0
+        for i in fq.iterate(IOTools.open_file(fastq)):
+            n += 1
+        n = n/1e6*scale + 1
+        mem = str(math.ceil(n)) + 'G'
+
+    else:
+        assert mem.endswith('G'), 'Expected memory to be in G'
         
+    return mem
+
 class trimmomatic(utility.matchReference):
 
     def buildStatement(self):
