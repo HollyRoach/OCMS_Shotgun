@@ -99,34 +99,6 @@ class cdhit(utility.matchReference):
         
         return statement
 
-def calc_mem_trimmomatic(fastq, mem, scale=1.7):
-    '''Receives as input a fastq and a string. If string ==
-    scalable, then calculate memory based on number of reads
-    in fastq. Returns memory requirement in Gb
-    '''
-    if mem.lower() == 'scalable':
-
-        # extract sample id from fastq file path
-        sample_id = re.search(r"input.dir\/(.+)\.fastq\.1\.gz", fastq).group(1)
-
-        # create filepath for location of file containing number of reads within fastq file
-        old_path = f"input.dir/{sample_id}.fastq.1.gz"
-        new_path = f"read_count_summary.dir/{sample_id}_input.nreads"
-        input_reads = re.sub(old_path, new_path, fastq)
-
-        # find number of reads within input fastq file
-        input_reads = Path(input_reads).read_text()
-        input_reads = int(re.sub(r'\n', '', input_reads))
-
-        # calculate required memory
-        n = input_reads/1e6*scale + 1
-        mem = str(math.ceil(n)) + 'G'
-
-    else:
-        assert mem.endswith('G'), 'Expected memory to be in G'
-        
-    return mem
-
 class trimmomatic(utility.matchReference):
 
     def buildStatement(self):

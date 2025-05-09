@@ -103,11 +103,9 @@ def removeAdapters(fastq1, outfile1):
 
     statement = pp.trimmomatic(fastq1, outfile1, **PARAMS).buildStatement()
 
-    job_memory = pp.calc_mem_trimmomatic(fastq1, PARAMS['trimmomatic_job_memory'])
-
     P.run(statement,
           job_threads = PARAMS['trimmomatic_job_threads'],
-          job_memory = job_memory,
+          job_memory = PARAMS['trimmomatic_job_memory'],,
           job_options = PARAMS.get('trimmomatic_job_options', ''))
 
 
