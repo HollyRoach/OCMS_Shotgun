@@ -106,7 +106,6 @@ def calc_mem_trimmomatic(fastq, mem, scale=1.7):
     '''
     if mem.lower() == 'scalable':
 
-        fastq = "/gpfs3/well/todd/projects/Microbiome/Azenta_WGM/Pipelines/04.1_preprocess/input.dir/FD28362162.fastq.1.gz"
         # extract sample id from fastq file path
         sample_id = re.search(r"input.dir\/(.+)\.fastq\.1\.gz", fastq).group(1)
 
