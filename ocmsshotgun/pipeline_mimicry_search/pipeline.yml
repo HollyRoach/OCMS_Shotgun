@@ -1,5 +1,4 @@
 # set job options for running prokka
-# set job options for running prokka
 prokka:
   job_threads: 8
   job_memory: 5G
