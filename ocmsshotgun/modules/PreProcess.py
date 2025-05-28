@@ -24,11 +24,22 @@ def calc_mem_cd_hit(fastq, mem, scale=1.7):
     in fastq. Returns memory requirement in Gb
     '''
     if mem.lower() == 'scalable':
-        n = 0
-        for i in fq.iterate(IOTools.open_file(fastq)):
-            n += 1
-        n = n/1e6*scale + 1
-        mem = str(math.ceil(n)) + 'G'
+             
+        # extract sample id from fastq file path
+        sample_id = re.search(r"input.dir\/(.+)\.fastq\.1\.gz", fastq).group(1)
+        
+        # define filepath for location of input.nreads file
+        input_reads = re.sub(f"input.dir/{sample_id}.fastq.1.gz", f"read_count_summary.dir/{sample_id}_input.nreads", fastq)
+
+        # find number of reads within input fastq file
+        input_reads = Path(input_reads).read_text()
+
+        input_reads = int(re.sub(r'\n', '', input_reads))
+
+        # calculate required memory
+        n = input_reads/1e6*scale + 1
+
+        mem = str(math.ceil(n)) + 'G'        
 
     else:
         assert mem.endswith('G'), 'Expected memory to be in G'
