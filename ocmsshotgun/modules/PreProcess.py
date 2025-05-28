@@ -34,7 +34,10 @@ def calc_mem_cd_hit(fastq, mem, scale=1.7):
         # find number of reads within input fastq file
         input_reads = Path(input_reads).read_text()
 
-        input_reads = int(re.sub(r'\n', '', input_reads))
+        if "nreads" in input_reads:
+            input_reads = int(re.sub(r'nreads', '', input_reads))
+        elif "\n" in input_reads:
+            input_reads = int(re.sub(r'\n', '', input_reads))
 
         # calculate required memory
         n = input_reads/1e6*scale + 1
