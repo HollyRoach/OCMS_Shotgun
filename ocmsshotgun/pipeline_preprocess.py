@@ -73,7 +73,7 @@ FASTQ1S = utility.check_input(indir)
 ###############################################################################
 # Deduplicate
 ###############################################################################
-@follows(mkdir('reads_deduped.dir'))
+@follows(countInputReads, mkdir('reads_deduped.dir'))
 @transform(FASTQ1S,
            regex(fr'{indir}/(.+).fastq.1.gz'),
            r"reads_deduped.dir/\1_deduped.fastq.1.gz")
