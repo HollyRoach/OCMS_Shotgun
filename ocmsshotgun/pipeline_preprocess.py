@@ -76,7 +76,7 @@ FASTQ1S = utility.check_input(indir)
 
 @follows(mkdir('read_count_summary.dir'))
 @transform(FASTQ1S,
-           regex(r'.+/(.+).fastq.1.gz'),
+           regex(r'.+/(?!FD28362148)(.+).fastq.1.gz'),
            r"read_count_summary.dir/\1_input.nreads")
 def countInputReads(infile, outfile):
     
@@ -94,7 +94,7 @@ def countInputReads(infile, outfile):
 ###############################################################################
 @follows(countInputReads, mkdir('reads_deduped.dir'))
 @transform(FASTQ1S,
-           regex(fr'{indir}/(.+).fastq.1.gz'),
+           regex(fr'{indir}/(?!FD28362148)(.+).fastq.1.gz'),
            r"reads_deduped.dir/\1_deduped.fastq.1.gz")
 def removeDuplicates(fastq1, outfile):
     '''Filter exact duplicates, if specified in config file'''
@@ -115,7 +115,7 @@ def removeDuplicates(fastq1, outfile):
 ###############################################################################
 @follows(mkdir('reads_adaptersRemoved.dir'))
 @transform(removeDuplicates,
-           regex(r'.+/(.+)_deduped.fastq.1.gz'),
+           regex(r'.+/(?!FD28362148)(.+)_deduped.fastq.1.gz'),
            r'reads_adaptersRemoved.dir/\1_deadapt.fastq.1.gz')
 def removeAdapters(fastq1, outfile1):
     '''Remove adapters using Trimmomatic'''
@@ -133,7 +133,7 @@ def removeAdapters(fastq1, outfile1):
 ###############################################################################
 @follows(mkdir('reads_rrnaRemoved.dir'))
 @transform(removeAdapters,
-           regex(r'.+/(.+)_deadapt.fastq.1.gz'),
+           regex(r'.+/(?!FD28362148)(.+)_deadapt.fastq.1.gz'),
            r'reads_rrnaRemoved.dir/\1_rRNAremoved.fastq.1.gz')
 def removeRibosomalRNA(fastq1, outfile):
     '''Remove ribosomal RNA using sortMeRNA'''
@@ -178,7 +178,7 @@ def removeRibosomalRNA(fastq1, outfile):
 
 @follows(mkdir('reads_rrnaClassified.dir'))
 @transform(removeAdapters,
-           regex(r'.+/(.+)_deadapt.fastq.1.gz'),
+           regex(r'.+/(?!FD28362148)(.+)_deadapt.fastq.1.gz'),
            r'reads_rrnaClassified.dir/\1_otu_map.txt')
 def classifyRibosomalRNA(fastq1, outfile):
 
@@ -297,7 +297,7 @@ def removeHost():
 ###############################################################################
 @follows(mkdir('reads_dusted.dir'))
 @transform(alignAndRemoveHost,
-           regex(r'.+/(.+)_dehost.fastq.1.gz'),
+           regex(r'.+/(?!FD28362148)(.+)_dehost.fastq.1.gz'),
            r'reads_dusted.dir/\1_masked.fastq.1.gz')
 def maskLowComplexity(fastq1, outfile):
     '''Either softmask low complexity regions, or remove reads with a large
@@ -330,7 +330,7 @@ def maskLowComplexity(fastq1, outfile):
 @follows(countInputReads)
 @transform([removeDuplicates, removeAdapters, removeRibosomalRNA,
             alignAndRemoveHost, maskLowComplexity],
-           regex(r'.+/(.+).fastq.1.gz'),
+           regex(r'.+/(?!FD28362148)(.+).fastq.1.gz'),
            r'read_count_summary.dir/\1.nreads')
 def countOutputReads(infile, outfile):
     '''Count the number of reads in the output files'''    
@@ -345,7 +345,7 @@ def countOutputReads(infile, outfile):
     P.run(statement)
 
 @collate([countInputReads, countOutputReads],
-         regex(r'(.+)_(input|deduped|deadapt|dehost|rRNAremoved|masked).nreads'),
+         regex(r'(?!FD28362148)(.+)_(input|deduped|deadapt|dehost|rRNAremoved|masked).nreads'),
          r'\1_read_count_summary.tsv')
 def collateReadCounts(infiles, outfile):
     '''Collate read counts for each sample'''
@@ -354,7 +354,7 @@ def collateReadCounts(infiles, outfile):
     
     statement = ("cgat tables2table"
                  " --cat Step"
-                 " --regex-filename='.+_(.+)\.nreads'"
+                 " --regex-filename='.+_(?!FD28362148)(.+)\.nreads'"
                  " --no-titles"
                  " --log=%(outfile)s.log"
                  " %(infiles)s"
