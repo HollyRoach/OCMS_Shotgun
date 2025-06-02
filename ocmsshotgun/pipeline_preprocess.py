@@ -71,6 +71,25 @@ indir = PARAMS.get("input.dir", "input.dir")
 FASTQ1S = utility.check_input(indir)
 
 ###############################################################################
+# Count number of input reads
+###############################################################################
+
+@follows(mkdir('read_count_summary.dir'))
+@transform(FASTQ1S,
+           regex(r'.+/(.+).fastq.1.gz'),
+           r"read_count_summary.dir/\1_input.nreads")
+def countInputReads(infile, outfile):
+    
+    outf = open(outfile, "w")
+    outf.write("nreads\n")
+    outf.close()
+    statement = ("zcat %(infile)s |"
+                 " awk '{n+=1;} END {printf(n/4\"\\n\");}'"
+                 " >> %(outfile)s")
+
+    P.run(statement)
+
+###############################################################################
 # Deduplicate
 ###############################################################################
 @follows(countInputReads, mkdir('reads_deduped.dir'))
@@ -307,21 +326,6 @@ def maskLowComplexity(fastq1, outfile):
 # @transform(removeAdapters, '.fastq.1.gz', '_histogram.png')
 # def plotDeadaptLengthDistribution(infile, outfile):
 #     '''Create a histogram of length distributions'''
-@follows(mkdir('read_count_summary.dir'))
-@transform(FASTQ1S,
-           regex(r'.+/(.+).fastq.1.gz'),
-           r"read_count_summary.dir/\1_input.nreads")
-def countInputReads(infile, outfile):
-    
-    outf = open(outfile, "w")
-    outf.write("nreads\n")
-    outf.close()
-    statement = ("zcat %(infile)s |"
-                 " awk '{n+=1;} END {printf(n/4\"\\n\");}'"
-                 " >> %(outfile)s")
-
-    P.run(statement)
-
 
 @follows(countInputReads)
 @transform([removeDuplicates, removeAdapters, removeRibosomalRNA,
