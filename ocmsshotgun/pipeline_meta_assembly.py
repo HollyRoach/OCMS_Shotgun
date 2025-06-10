@@ -126,7 +126,24 @@ def runReadProcessing(infile, outfile):
         P.run(statement)
 
     else:
+        # create symlinks for fastq.1.gz files
         os.symlink(os.path.abspath(infile), outfile)
+
+        # extract file names for infile fastq.2.gz and fastq.3.gz 
+        fq2_infile = P.snip(infile, ".fastq.1.gz") + re.sub('1', '2', ".fastq.1.gz")
+        fq3_infile = P.snip(infile, ".fastq.1.gz") + re.sub('1', '3', ".fastq.1.gz")
+
+        # extract file names for outfile fastq.2.gz and fastq.3.gz 
+        fq2_outfile = P.snip(outfile, ".fastq.1.gz") + re.sub('1', '2', ".fastq.1.gz")
+        fq3_outfile = P.snip(outfile, ".fastq.1.gz") + re.sub('1', '3', ".fastq.1.gz")
+
+        # only if fastq.2.gz or fastq.3.gz files exit, create symlinks
+        if os.path.exists(os.path.abspath(fq2_infile)):
+             os.symlink(os.path.abspath(fq2_infile), fq2_outfile)
+        
+        if os.path.exists(os.path.abspath(fq3_infile)):
+             os.symlink(os.path.abspath(fq3_infile), fq3_outfile)
+
 
     
 ###############################################################################
