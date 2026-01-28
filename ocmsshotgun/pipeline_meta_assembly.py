@@ -292,27 +292,74 @@ def collateContigStatsAcrossAssemblers(infiles, outfile):
 # Calculate Assembly Statistics through QUAST
 @follows(assembleMetaGenome)
 @transform(ASSEMBLY_TARGETS,
-           regex('(.+)/(.+).contigs.fasta'),
-           r'\1/\2_quast.dir/report.tsv')
+           regex('(.+)/(.+)\.contigs\.fasta'),
+           r'\1/\2_quast.dir/combined_reference/report.tsv')
 
 def runQUAST(contig_file, outfile):
-    '''Run Quast without reference to get contig/scaffold stats'''
+    '''Run Quast with reference to get contig/scaffold stats'''
    
-    out_dir = os.path.dirname(outfile)
-    out_log = P.snip(out_dir, '.dir') + '.log'
+    quast_dir = os.path.dirname(os.path.dirname(outfile))  # strips .../combined_reference/report.tsv
+    out_log = quast_dir + '.log'
 
     statement = ("metaquast.py %(contig_file)s"
-                 " --output-dir %(out_dir)s"
+                 " --output-dir %(quast_dir)s"
                  " %(quast_options)s"
                  " -r %(quast_reference)s"
                  " &> %(out_log)s")
     P.run(statement,
           job_threads=PARAMS['quast']['meta_threads'],
           job_memory=PARAMS['quast']['meta_memory'])
-          
+
+#Merge QUAST reports for MetaSpades
+@merge(runQUAST,
+       "quast_spades_assembly_stats.tsv.gz")
+def mergeQUASToutputSpades(infiles, outfile):
+    '''
+    Merge QUAST reports from SPAdes assemblies.
+    '''
+    spades_files = [x for x in infiles if "spades" in x]
+    out_log = P.snip(outfile, '.tsv.gz') + ".log"
+    files_str = ' '.join(spades_files)
+
+    statement = (
+        f"ocms_shotgun combine_tables "
+        f"--skip-titles "
+        f"{files_str} "
+        f"-m 0 "
+        f"-k 2 "
+        f"-c 1 "
+        f"--log={out_log} "
+        f"| sed 's/^Assembly/Statistics/' "
+        f"| gzip > {outfile}"
+    )
+    P.run(statement)
+
+@merge(runQUAST,
+       "quast_megahit_assembly_stats.tsv.gz")
+def mergeQUASToutputMegahit(infiles, outfile):
+    '''
+    Merge QUAST reports from MEGAHIT assemblies.
+    '''
+    megahit_files = [x for x in infiles if "megahit" in x]
+    out_log = P.snip(outfile, '.tsv.gz') + ".log"
+    files_str = ' '.join(megahit_files)
+
+    statement = (
+        f"ocms_shotgun combine_tables "
+        f"--skip-titles "
+        f"{files_str} "
+        f"-m 0 "
+        f"-k 2 "
+        f"-c 1 "
+        f"--log={out_log} "
+        f"| sed 's/^Assembly/Statistics/' "
+        f"| gzip > {outfile}"
+    )
+    P.run(statement)
+
+
 
 ##############################################################################
-
 def main(argv=None):
     if argv is None:
         argv=sys.argv
