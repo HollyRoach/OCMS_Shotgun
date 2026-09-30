@@ -21,16 +21,32 @@ import os
 # ----------------------------
 # Utilities
 # ----------------------------
+
 def normalize_read_name(raw: str) -> str:
     """
-    Minimal normalization tailored to your dataset:
-      - Remove leading '@' from FASTQ header lines (BAM names do not have '@').
+    Normalize BAM and FASTQ read names to a common identifier.
+    Supports:
+      BAM:
+        READNAME
+      Illumina FASTQ format:
+        @READNAME 1:N:0:INDEX
+        @READNAME 2:N:0:INDEX
     """
+
     if not raw:
         return raw
+    
+    # Remove leading '@' from FASTQ header lines (BAM names do not have '@')
     if raw.startswith("@"):
         raw = raw[1:]
+
+    # Keep only the first Illumina header field 
+    # typically first whitespace-separated field is the actual read identifier and everything after the space is metadata
+    raw = raw.split()[0]
+
     return raw
+
+
 
 def ensure_gz_path(p: Path) -> Path:
     """Ensure an output path ends with .gz."""
