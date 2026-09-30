@@ -14,5 +14,9 @@ extract_fastqs_by_bin:
     time_limit: --time=5:00:00
 
 spades:
-  spades_threads: 8
-  spades_memory: 30G
+  threads: 8
+  # total memory in available to the job - not cpu
+  total_memory: 10G
+  cluster_options: "--mem=10000 --time=02:00:00"
+
+  

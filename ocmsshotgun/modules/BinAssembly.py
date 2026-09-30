@@ -37,7 +37,7 @@ class runBinSpades(MA.MetaAssembler):
     def _fetch_run_statement(self, lib_args: str, spades_out: str, **PARAMS) -> str:
         # threads/memory can be passed in PARAMS (fallbacks provided)
         threads = PARAMS.get("spades_threads", PARAMS.get("threads", 8))
-        memory = PARAMS.get("spades_memory", PARAMS.get("memory", 32))
+        memory = PARAMS.get("spades_total_memory", PARAMS.get("memory", 32))
         # accept "32G" or int GB
         if isinstance(memory, str) and memory.upper().endswith("G"):
             mem_gb = int(memory[:-1])

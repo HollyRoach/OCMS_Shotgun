@@ -155,9 +155,8 @@ def assemble_refined_bins(infile, outfile):
     # Execute
     P.run(
         statement,
-        job_threads=PARAMS.get("spades_threads", 8),
-        job_memory=PARAMS.get("spades_memory", "32G"),
-        job_options=PARAMS.get("spades_job_options", "")
+        job_threads=PARAMS["spades_threads"],
+        job_options=PARAMS["spades_cluster_options"]
     )
 
 @follows(assemble_refined_bins)
