@@ -46,7 +46,16 @@ def run_binning_refiner(infile, outfile):
     sample_name = infile.name
 
     # run inside outdir using absolute input path
-    statement = f"cd {outdir} && Binning_refiner -i {infile} -p {sample_name} -plot"
+    #statement = f"cd {outdir} && Binning_refiner -i {infile} -p {sample_name} -plot"
+    
+    # update statement to run patched Binning_refiner
+    statement = (
+        f"cd {outdir}"
+        " && ~/devel/software/Binning_refiner_gz"
+        f" -i {infile}"
+        f" -p {sample_name}"
+    )
+
     P.run(statement)
 
     Path(outfile).write_text("done\n")
