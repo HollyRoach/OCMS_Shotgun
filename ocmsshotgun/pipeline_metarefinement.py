@@ -56,7 +56,13 @@ def run_binning_refiner(infile, outfile):
         f" -p {sample_name}"
     )
 
-    P.run(statement)
+    # Execute
+    P.run(
+        statement,
+        job_memory=PARAMS["binning_refiner_memory"],
+        job_threads=PARAMS["binning_refiner_threads"],
+        job_options=PARAMS["binning_refiner_cluster_options"]
+    )
 
     Path(outfile).write_text("done\n")
 
@@ -100,6 +106,7 @@ def create_contig_to_bin_map(infile, outfile):
            regex(r".*/([^/]+)_sorted\.bam$"),
            add_inputs(r"02_contig_bin_maps.dir/\1_contig_to_bin.json"),
            r"03_refined_bin_reads.dir/\1_*.*")
+
 def extract_refined_bin_reads(inputs, outfiles):
     """Extract read IDs for contigs belonging to refined bins."""
     tool = MR.ExtractRefinedBinReads(inputs, **PARAMS)
@@ -107,7 +114,8 @@ def extract_refined_bin_reads(inputs, outfiles):
     P.run(
         statement,
         job_memory=PARAMS["extract_refined_bin_reads_memory"],
-        job_threads=PARAMS["extract_refined_bin_reads_threads"]
+        job_threads=PARAMS["extract_refined_bin_reads_threads"],
+        job_options=PARAMS["extract_refined_bin_reads_cluster_options"]
     )
 
 ###############################################################################
@@ -119,6 +127,7 @@ def extract_refined_bin_reads(inputs, outfiles):
            regex(r"03_refined_bin_reads\.dir/([^/]+)/(.+)_([0-9]+)_read_ids\.txt$"),
            [r"04_refined_bin_fastqs.dir/\1/bin\3.fastq.1.gz",
             r"04_refined_bin_fastqs.dir/\1/bin\3.fastq.2.gz"])
+
 def extract_fastqs_by_bin(infile, outfiles):
     tool = MR.FilterFastqByIds(infile, outfiles, **PARAMS)
     statement = tool.build_statement()
@@ -126,7 +135,7 @@ def extract_fastqs_by_bin(infile, outfiles):
         statement,
         job_memory=PARAMS["extract_fastqs_by_bin_memory"],
         job_threads=PARAMS["extract_fastqs_by_bin_threads"],
-        job_options=PARAMS["extract_fastqs_by_bin_time_limit"]
+        job_options=PARAMS["extract_fastqs_by_bin_cluster_options"]
     )
 
 ##############################################################################

@@ -4,19 +4,25 @@ general:
     input_fastqs_dir: input_fastqs.dir
     input_bams_dir: input_bams.dir
 
+binning_refiner:
+    memory: 2G
+    threads: 1
+    cluster_options: --time=1:00:00
+
 extract_refined_bin_reads:
-   memory: 4G
-   threads: 4
+   memory: 2G
+   threads: 1
+   cluster_options: --time=1:00:00
   
 extract_fastqs_by_bin:
-    memory: 5G
-    threads: 8
-    time_limit: --time=5:00:00
+    memory: 2G
+    threads: 1
+    cluster_options: --time=1:00:00
 
 spades:
-  threads: 8
+  threads: 4
   # total memory in available to the job - not cpu
-  total_memory: 10G
-  cluster_options: "--mem=10000 --time=02:00:00"
+  total_memory: 5G
+  cluster_options: "--mem=5000 --time=1:00:00"
 
   
