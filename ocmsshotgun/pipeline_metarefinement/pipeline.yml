@@ -1,18 +1,17 @@
 general:
     # input directory (fastq single or paired end reads)
-    input.dir: 'input.dir'
-    input_fastqs_dir: "/gpfs3/well/kir-scratch/kir-ocms/MetaRefinement/input_fastqs.dir"
-    input_bams_dir: "/gpfs3/well/kir-scratch/kir-ocms/MetaRefinement/input_bams.dir"
+    input.dir: input.dir
+    input_fastqs_dir: input_fastqs.dir
+    input_bams_dir: input_bams.dir
 
 extract_refined_bin_reads:
-   memory: 20G
+   memory: 4G
    threads: 4
-
-
-    
+  
 extract_fastqs_by_bin:
-    memory: 40G
+    memory: 5G
     threads: 8
+    time_limit: --time=5:00:00
 
 spades:
   spades_threads: 8

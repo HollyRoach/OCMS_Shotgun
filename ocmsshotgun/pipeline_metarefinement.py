@@ -47,7 +47,7 @@ def run_binning_refiner(infile, outfile):
 
     # run inside outdir using absolute input path
     #statement = f"cd {outdir} && Binning_refiner -i {infile} -p {sample_name} -plot"
-    
+
     # update statement to run patched Binning_refiner
     statement = (
         f"cd {outdir}"
@@ -125,7 +125,8 @@ def extract_fastqs_by_bin(infile, outfiles):
     P.run(
         statement,
         job_memory=PARAMS["extract_fastqs_by_bin_memory"],
-        job_threads=PARAMS["extract_fastqs_by_bin_threads"]
+        job_threads=PARAMS["extract_fastqs_by_bin_threads"],
+        job_options=PARAMS["extract_fastqs_by_bin_time_limit"]
     )
 
 ##############################################################################
