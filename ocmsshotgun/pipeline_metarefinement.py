@@ -31,10 +31,18 @@ print("indir =", indir)
 # Run binning_refiner per sample
 ###############################################################################
 
+# @follows(mkdir("01_refined_bins.dir"))
+# @transform(
+#     "input.dir/*/*",
+#     regex("input.dir/(.+)/*"),
+#     r"01_refined_bins.dir/\1/done.txt"
+# )
+
 @follows(mkdir("01_refined_bins.dir"))
 @transform(str(indir) + "/*",
            regex(r".*/([^/]+)$"),
            r"01_refined_bins.dir/\1/done.txt")
+
 def run_binning_refiner(infile, outfile):
     outdir = Path(outfile).parent
     outdir.mkdir(parents=True, exist_ok=True)
@@ -70,10 +78,18 @@ def run_binning_refiner(infile, outfile):
 # Create contig-to-bin mapping dictionaries
 ###############################################################################
 
+# @follows(run_binning_refiner, mkdir("02_contig_bin_maps.dir"))
+# @transform(
+#     "01_refined_bins.dir/*/*_Binning_refiner_outputs/*_contigs.txt",
+#     regex("01_refined_bins.dir/(.+)/*_Binning_refiner_outputs/*_contigs.txt"),
+#     r"02_contig_bin_maps.dir/\1_contig_to_bin.json"
+# )
+
 @follows(run_binning_refiner, mkdir("02_contig_bin_maps.dir"))
 @transform("01_refined_bins.dir/*/*_Binning_refiner_outputs/*_contigs.txt",
            regex(r".*/([^/]+)_Binning_refiner_outputs/([^/]+)_contigs.txt$"),
            r"02_contig_bin_maps.dir/\2_contig_to_bin.json")
+
 def create_contig_to_bin_map(infile, outfile):
     infile = Path(infile).resolve()
     outfile = Path(outfile).resolve()
@@ -101,11 +117,17 @@ def create_contig_to_bin_map(infile, outfile):
 # Extract read IDs per refined bin
 ###############################################################################
 
+# @follows(create_contig_to_bin_map, mkdir("03_refined_bin_reads.dir"))
+# @subdivide(PARAMS["general_input_bams_dir"] + "/*_sorted.bam",
+#            regex(r".*/([^/]+)_sorted\.bam$"),
+#            add_inputs(r"02_contig_bin_maps.dir/\1_contig_to_bin.json"),
+#            r"03_refined_bin_reads.dir/\1_*.*")
+
 @follows(create_contig_to_bin_map, mkdir("03_refined_bin_reads.dir"))
 @subdivide(PARAMS["general_input_bams_dir"] + "/*_sorted.bam",
            regex(r".*/([^/]+)_sorted\.bam$"),
            add_inputs(r"02_contig_bin_maps.dir/\1_contig_to_bin.json"),
-           r"03_refined_bin_reads.dir/\1_*.*")
+           r"03_refined_bin_reads.dir/\1/\1_read_summary.tsv")
 
 def extract_refined_bin_reads(inputs, outfiles):
     """Extract read IDs for contigs belonging to refined bins."""
@@ -122,7 +144,7 @@ def extract_refined_bin_reads(inputs, outfiles):
 # Extract fastqs for each bin using reads IDs
 ###############################################################################
 
-#@follows(extract_refined_bin_reads, mkdir("04_refined_bin_fastqs.dir"))
+@follows(extract_refined_bin_reads, mkdir("04_refined_bin_fastqs.dir"))
 @transform("03_refined_bin_reads.dir/*/*_read_ids.txt",
            regex(r"03_refined_bin_reads\.dir/([^/]+)/(.+)_([0-9]+)_read_ids\.txt$"),
            [r"04_refined_bin_fastqs.dir/\1/bin\3.fastq.1.gz",
